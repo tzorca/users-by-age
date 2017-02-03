@@ -1,6 +1,4 @@
-module.exports.parseTextToUsersByAge = function(text) {
-    var lines = text.match(/[^\r\n]+/g);
-
+module.exports.parseLinesToUsersByAge = function(lines) {
     var usersByAge = {};
     lines.forEach(function(line){
         var fields = line.split(/,/);
