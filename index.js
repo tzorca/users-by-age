@@ -45,6 +45,9 @@ if (cluster.isMaster) {
 
                 // Time app completion.
                 console.timeEnd('app');
+                
+                // Exit the application.
+                process.exit();
             });
         } else {
             // In single-core mode, just parse all the lines and log the results.
@@ -53,6 +56,9 @@ if (cluster.isMaster) {
 
             // Time app completion.
             console.timeEnd('app');
+
+            // Exit the application.
+            process.exit();
         }
     });
 
