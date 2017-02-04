@@ -3,9 +3,9 @@
 module.exports.parseLinesToUsersByAge = function(lines) {
     var usersByAge = {};
     lines.forEach(function(line) {
-        var fields = line.split(/,/);
+        var fields = line.split(',');
         if (fields.length != 2) {
-            console.log('Invalid number of fields on line');
+            console.log('Invalid number of fields on line.');
             return;
         }
 
