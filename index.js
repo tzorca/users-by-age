@@ -33,6 +33,10 @@ if (cluster.isMaster) {
         // Split the file data into lines for processing.
         var lines = splitIntoLines(fileData);
 
+        if (!lines || lines.length === 0) {
+            endApplicationWithError('Specified file contains no non-blank lines.');
+        }
+
         if (multicore) {
             // In multicore mode, coordinate workers to work in line chunks.
             coordinateWorkers(lines, function onCompletion(subResults) {
@@ -87,26 +91,48 @@ function coordinateWorkers(lines, onCompletion) {
 
     // Split the lines into chunks that can be processed by each worker.
     var chunkedLines = chunkifier.chunkify(lines, cpuCount);
+    var workerCount = chunkedLines.length;
 
-    for (var i = 0; i < cpuCount; i++) {
+    for (var i = 0; i < workerCount; i++) {
 
-        // For each core/CPU, create a new process in worker mode.
+        // For each core/CPU (up to number of line chunks), create a new process in worker mode.
         var worker = cluster.fork();
 
         // Send the lines to be processed to the new worker.
         worker.send(chunkedLines[i]);
 
-        worker.on('message', function workerFinished(subResult) {
+        worker.on('message', function workerFinished(workerResult) {
             // When a worker sends a message to the master, that worker has finished.
             worker.kill();
             completedWorkerCount++;
-            subResults.push(subResult);
+            if (workerResult.error !== null) {
+                // An error occurred. Stop application and output error.
+                endApplicationWithError(workerResult.error);
+            }
 
+            // Otherwise, add worker's data result to subResults
+            subResults.push(workerResult.data);
             // If all the workers are finished, run the completion function.
-            if (completedWorkerCount == cpuCount) {
+            if (completedWorkerCount == workerCount) {
                 onCompletion(subResults);
             }
         });
+    }
+}
+
+
+// Outputs an error message, stops all running worker processes (if any), then ends the application with a failure code.
+function endApplicationWithError(errorMsg) {
+    console.log(errorMsg);
+    stopAllWorkers();
+    process.exit(0);
+}
+
+
+// Ends all worker processes if any are running
+function stopAllWorkers() {
+    for (var i = 0; i < cluster.workers.length; i++) {
+        cluster.workers[i].kill()
     }
 }
 

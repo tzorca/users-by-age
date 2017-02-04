@@ -1,22 +1,42 @@
-// Parse an array of lines into an object map containing number of users for each distinct age.
-// Each line should contain userID and userAge delimited by a comma.
+var validator = require('validator');
+
+// Parses the specified array of strings into an object map containing number of users for each distinct age.
+// Each string should have two fields: user ID and user age, delimited by a comma.
+// User ID should come before user age.
+//
+// Returns an object in the form of { error: string, data: usersByAge }
+// If there is an error, the error key will have a non-null value.
 module.exports.parseLinesToUsersByAge = function(lines) {
     var usersByAge = {};
-    lines.forEach(function(line) {
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+
+        // Split line by comma delimeter
         var fields = line.split(',');
+
+        // Validate line fields
         if (fields.length != 2) {
-            console.log('Invalid number of fields on line.');
-            return;
+            return { error: 'At least one line has an invalid number of fields.', data: null };
         }
 
         var userID = fields[0];
+        if (!validator.isInt(userID)) {
+            return { error: 'At least one user ID is not an integer.', data: null };
+        }
+
         var userAge = fields[1];
+        if (!validator.isInt(userAge)) {
+            return { error: 'At least one user age is not an integer.', data: null };
+        }
+
+        // Increment usersByAge for the current userAge
         if (!(userAge in usersByAge)) {
             usersByAge[userAge] = 1;
         } else {
             usersByAge[userAge]++;
         }
-    });
+    }
 
-    return usersByAge;
+    return { error: null, data: usersByAge };
 };
