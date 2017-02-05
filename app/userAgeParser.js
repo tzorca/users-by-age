@@ -1,5 +1,12 @@
 var validator = require('validator');
 
+
+var columnIndex = {
+	userID: 0,
+	userAge: 1
+};
+
+
 // Parses the specified array of strings into an object map containing number of users for each distinct age.
 // Each string should have two fields: user ID and user age, delimited by a comma.
 // User ID should come before user age.
@@ -15,28 +22,47 @@ module.exports.parseLinesToUsersByAge = function(lines) {
         // Split line by comma delimeter
         var fields = line.split(',');
 
-        // Validate line fields
-        if (fields.length != 2) {
-            return { error: 'At least one line has an invalid number of fields.', data: null };
+        // Validate fields
+        var validationResult = validateLineFields(fields);
+        if (validationResult.error) {
+        	return validationResult;
         }
 
-        var userID = fields[0];
-        if (!validator.isInt(userID)) {
-            return { error: 'At least one user ID is not an integer.', data: null };
-        }
+        // Read fields
+	    var userID = fields[columnIndex.userID];
+	    var userAge = fields[columnIndex.userAge];
 
-        var userAge = fields[1];
-        if (!validator.isInt(userAge)) {
-            return { error: 'At least one user age is not an integer.', data: null };
-        }
-
-        // Increment usersByAge for the current userAge
+        // Increment usersByAge for the current userAge.
         if (!(userAge in usersByAge)) {
             usersByAge[userAge] = 1;
         } else {
             usersByAge[userAge]++;
         }
+
+        
     }
 
     return { error: null, data: usersByAge };
 };
+
+
+// Validates whether the fields on a line match the data format requirements.
+// Returns an object matching the format of parseLinesToUsersByAge's return value. Will contain an error key if there is a validation error.
+function validateLineFields(fields) {
+	if (fields.length != 2) {
+        return { error: 'At least one line has an invalid number of fields.', data: null };
+    }
+
+    var userID = fields[columnIndex.userID];
+    if (!validator.isInt(userID)) {
+        return { error: 'At least one user ID is not an integer.', data: null };
+    }
+
+    var userAge = fields[columnIndex.userAge];
+    if (!validator.isInt(userAge)) {
+        return { error: 'At least one user age is not an integer.', data: null };
+    }
+
+    // No field validation errors found.
+    return {};
+}
