@@ -1,9 +1,9 @@
 var validator = require('validator');
 
 
-var columnIndex = {
-	userID: 0,
-	userAge: 1
+var ColumnIndex = {
+	USER_ID: 0,
+	USER_AGE: 1
 };
 
 
@@ -29,8 +29,8 @@ module.exports.parseLinesToUsersByAge = function(lines) {
         }
 
         // Read fields
-	    var userID = fields[columnIndex.userID];
-	    var userAge = fields[columnIndex.userAge];
+	    var userID = fields[ColumnIndex.USER_ID];
+	    var userAge = fields[ColumnIndex.USER_AGE];
 
         // Increment usersByAge for the current userAge.
         if (!(userAge in usersByAge)) {
@@ -38,8 +38,6 @@ module.exports.parseLinesToUsersByAge = function(lines) {
         } else {
             usersByAge[userAge]++;
         }
-
-        
     }
 
     return { error: null, data: usersByAge };
@@ -53,12 +51,12 @@ function validateLineFields(fields) {
         return { error: 'At least one line has an invalid number of fields.', data: null };
     }
 
-    var userID = fields[columnIndex.userID];
+    var userID = fields[ColumnIndex.USER_ID];
     if (!validator.isInt(userID)) {
         return { error: 'At least one user ID is not an integer.', data: null };
     }
 
-    var userAge = fields[columnIndex.userAge];
+    var userAge = fields[ColumnIndex.USER_AGE];
     if (!validator.isInt(userAge)) {
         return { error: 'At least one user age is not an integer.', data: null };
     }
