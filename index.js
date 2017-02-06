@@ -160,6 +160,6 @@ function mergeObjectsAddValues(objs) {
 function logUsersByAge(usersByAge) {
     Object.keys(usersByAge).forEach(function(age) {
         var userCount = usersByAge[age];
-        console.log([age, userCount]);
+        console.log(age + ',' + userCount);
     });
 }
